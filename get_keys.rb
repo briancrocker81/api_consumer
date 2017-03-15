@@ -13,7 +13,6 @@ class GenerateKey
   def get_config(content_id)
     content_id  = content_id
     file = File.read('config.json')
-    puts file
     generate_body(content_id, file)
   end
 
@@ -21,7 +20,7 @@ class GenerateKey
     data_hash = JSON.parse(file)
 
     namespaces  = {"xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope", "xmlns:liv" => "http://man.entriq.net/livedrmservice/"}
-    header = {"m_sUsername" => "#{m_sUsername}", "m_sPassword" => "#{m_sPassword}", "KMSUsername" => "#{kmsUsername}", "KMSPassword" => "#{kmsPassword}"}
+    header = {"m_sUsername" => "#{data_hash['irdeto']['m_sUsername']}", "m_sPassword" => "#{data_hash['irdeto']['m_sPassword']}", "KMSUsername" => "#{data_hash['irdeto']['kmsUsername']}", "KMSPassword" => "#{data_hash['irdeto']['kmsUsername']}"}
     b = Nokogiri::XML::Builder.new
 
     b[:soap].Envelope(namespaces) {
@@ -30,9 +29,9 @@ class GenerateKey
       }
       b[:soap].Body {
         b[:liv].GenerateKeys() {
-          b[:liv].accountId(account_id)
+          b[:liv].accountId(data_hash['irdeto']['account_id'])
           b[:liv].contentId(content_id)
-          b[:liv].protectionSystem(){b[:liv].string(protection)}
+          b[:liv].protectionSystem(){b[:liv].string(data_hash['irdeto']['protection'])}
         }
       }
     }
@@ -43,7 +42,7 @@ class GenerateKey
          method: :post,
          url: url,
          payload: body,
-         headers: { :Authentication => "Basic #{auth}", :content_type => "text/xml; charset=UTF-8" }
+         headers: { :Authentication => "Basic #{data_hash['irdeto']['auth']}", :content_type => "text/xml; charset=UTF-8" }
      }).execute do |response|
       case response.code
         when 500
