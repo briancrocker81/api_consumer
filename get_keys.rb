@@ -3,26 +3,22 @@ require 'nokogiri'
 require 'active_support'
 require 'active_support/core_ext'
 require 'base64'
+require 'json'
 
 class GenerateKey
 
   def initialize
   end
 
-  def get_key(content_id)
+  def get_config(content_id)
     content_id  = content_id
-    url         = "http://localhost:8989/LiveDrmService/LiveDrmService.asmx"
-    auth        = "bGl2ZWRybTpsaXZlZHJt"
-    account_id  = "default"
-    protection  = "IrdetoProtection"
-    m_sUsername = "admin@unifieds.com"
-    m_sPassword = "unifieds"
-    kmsUsername = "livedrm"
-    kmsPassword = "livedrm"
-    generate_body(content_id, url, auth, account_id, protection, m_sUsername, m_sPassword, kmsUsername, kmsPassword)
+    file = File.read('config.json')
+    puts file
+    generate_body(content_id, file)
   end
 
-  def generate_body(content_id, url, auth, account_id, protection, m_sUsername, m_sPassword, kmsUsername, kmsPassword)
+  def generate_body(content_id, file)
+    data_hash = JSON.parse(file)
 
     namespaces  = {"xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope", "xmlns:liv" => "http://man.entriq.net/livedrmservice/"}
     header = {"m_sUsername" => "#{m_sUsername}", "m_sPassword" => "#{m_sPassword}", "KMSUsername" => "#{kmsUsername}", "KMSPassword" => "#{kmsPassword}"}
@@ -46,7 +42,7 @@ class GenerateKey
     response = RestClient::Request.new({
          method: :post,
          url: url,
-         payload: t_body,
+         payload: body,
          headers: { :Authentication => "Basic #{auth}", :content_type => "text/xml; charset=UTF-8" }
      }).execute do |response|
       case response.code
@@ -80,6 +76,6 @@ class GenerateKey
 end
 
 key = GenerateKey.new
-request = key.get_key("1007")
+request = key.get_config("1007")
 
 puts request
