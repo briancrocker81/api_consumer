@@ -5,7 +5,11 @@ require 'active_support/core_ext'
 require 'base64'
 require 'json'
 
+require_relative 'write_to_xml'
+
 class GenerateKey
+
+  include WriteXML
 
   def initialize
   end
@@ -58,7 +62,7 @@ class GenerateKey
           when 200
             [ :success, response.to_str ]
             # puts "SUCCESS -- " + response
-            convert_to_xml(response)
+            convert_key(response)
           else
             fail "Invalid response #{response.to_str} received."
         end
@@ -67,19 +71,13 @@ class GenerateKey
     end
   end
 
-  def convert_to_xml(response)
-    doc = Nokogiri::XML.parse response
-    convert_key(doc)
-  end
-
-  def convert_key(doc)
-    hash = Hash.from_xml(doc)
+  def convert_key(response)
+    hash = Hash.from_xml(Nokogiri::XML.parse response)
     hash_key = hash["Keys"]["Key"]["ContentKey"]
     aes_key = hash_key.unpack("m0").first.unpack("H*").first
     details = { contentKey: aes_key, laurl: "drm2.tv.delta.nl" }.to_s
-
+    # update_file(details)
   end
-
 
 
 end
