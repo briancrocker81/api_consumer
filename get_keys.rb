@@ -9,24 +9,22 @@ require_relative 'write_to_xml'
 
 class GenerateKey
 
-  include WriteXML
-
-  def initialize
-  end
+  def initialize;  end
 
   def get_config(content_id)
     content_id  = content_id
-    config = File.read('config.json')
+    config = File.read('config.json')       # --TODO-- move to central config
     generate_body(content_id, config)
   end
 
   def generate_body(content_id, config)
 
+    # raise ArguementError, 'Arguement is not hash' unless config.is_a? JSON
+
     begin
       data_hash = JSON.parse(config)
     rescue
       puts "Could not load configuration options"
-      # retry
     else
       namespaces  = {"xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope", "xmlns:liv" => "http://man.entriq.net/livedrmservice/"}
       header = {"m_sUsername" => "#{data_hash['irdeto']['m_sUsername']}", "m_sPassword" => "#{data_hash['irdeto']['m_sPassword']}", "KMSUsername" => "#{data_hash['irdeto']['kmsUsername']}", "KMSPassword" => "#{data_hash['irdeto']['kmsUsername']}"}
@@ -46,13 +44,12 @@ class GenerateKey
       }
 
       body = b.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION).strip.to_s
-
       response = RestClient::Request.new({
-                                             method: :post,
-                                             url: data_hash['irdeto']['url'],
-                                             payload: body,
-                                             headers: { :Authentication => "Basic #{data_hash['irdeto']['auth']}", :content_type => "text/xml; charset=UTF-8" }
-                                         }).execute do |response|
+        method: :post,
+        url: data_hash['irdeto']['url'],
+        payload: body,
+        headers: { :Authentication => "Basic #{data_hash['irdeto']['auth']}", :content_type => "text/xml; charset=UTF-8" }
+      }).execute do |response|
         case response.code
           when 500
             puts "WARNING: -- Local error"
@@ -61,13 +58,11 @@ class GenerateKey
             [ :error, response.to_str ]
           when 200
             [ :success, response.to_str ]
-            # puts "SUCCESS -- " + response
             convert_key(response)
           else
             fail "Invalid response #{response.to_str} received."
         end
       end
-
     end
   end
 
@@ -76,13 +71,11 @@ class GenerateKey
     hash_key = hash["Keys"]["Key"]["ContentKey"]
     aes_key = hash_key.unpack("m0").first.unpack("H*").first
     details = { contentKey: aes_key, laurl: "drm2.tv.delta.nl" }.to_s
-    # update_file(details)
+    puts details
   end
-
 
 end
 
 key = GenerateKey.new
-request = key.get_config("1007")
-
+request = key.get_config(1007)
 puts request
