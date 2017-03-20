@@ -5,8 +5,6 @@ require 'active_support/core_ext'
 require 'base64'
 require 'json'
 
-require_relative 'write_to_xml'
-
 class GenerateKey
 
   def initialize;  end
@@ -19,17 +17,15 @@ class GenerateKey
 
   def generate_body(content_id, config)
 
-    # raise ArguementError, 'Arguement is not hash' unless config.is_a? JSON
-
     begin
       data_hash = JSON.parse(config)
-    rescue
+    rescue JSON::ParserError => e
       puts "Could not load configuration options"
     else
       namespaces  = {"xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope", "xmlns:liv" => "http://man.entriq.net/livedrmservice/"}
       header = {"m_sUsername" => "#{data_hash['irdeto']['m_sUsername']}", "m_sPassword" => "#{data_hash['irdeto']['m_sPassword']}", "KMSUsername" => "#{data_hash['irdeto']['kmsUsername']}", "KMSPassword" => "#{data_hash['irdeto']['kmsUsername']}"}
-      b = Nokogiri::XML::Builder.new
 
+      b = Nokogiri::XML::Builder.new
       b[:soap].Envelope(namespaces) {
         b[:soap].Header() {
           b[:liv].LiveDrmServiceHeader(header)
@@ -42,8 +38,8 @@ class GenerateKey
           }
         }
       }
-
       body = b.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION).strip.to_s
+
       response = RestClient::Request.new({
         method: :post,
         url: data_hash['irdeto']['url'],
@@ -70,12 +66,12 @@ class GenerateKey
     hash = Hash.from_xml(Nokogiri::XML.parse response)
     hash_key = hash["Keys"]["Key"]["ContentKey"]
     aes_key = hash_key.unpack("m0").first.unpack("H*").first
-    details = { contentKey: aes_key, laurl: "drm2.tv.delta.nl" }.to_s
-    puts details
+    details = { contentKey: aes_key, laurl: "http://drm2.tv.delta.nl/keyfile/" }
+    puts details.to_s
   end
 
 end
 
-key = GenerateKey.new
-request = key.get_config(1007)
-puts request
+key = GenerateKey.new.get_config(1007)
+# request = key.get_config(1007)
+# puts request
