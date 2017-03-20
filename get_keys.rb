@@ -64,9 +64,10 @@ class GenerateKey
 
   def convert_key(response)
     hash = Hash.from_xml(Nokogiri::XML.parse response)
-    hash_key = hash["Keys"]["Key"]["ContentKey"]
-    aes_key = hash_key.unpack("m0").first.unpack("H*").first
-    details = { contentKey: aes_key, laurl: "http://drm2.tv.delta.nl/keyfile/" }
+    hash_key_id = hash["Keys"]["Key"]["KeyId"]
+    hash_content_key = hash["Keys"]["Key"]["ContentKey"]
+    aes_key = hash_content_key.unpack("m0").first.unpack("H*").first
+    details = { contentKey: aes_key, laurl: "http://drm2.tv.delta.nl/keyfile/#{hash_key_id}" }
     puts details.to_s
   end
 
