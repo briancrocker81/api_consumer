@@ -11,14 +11,10 @@ class GenerateKey
 
   def get_config(content_id)
     content_id  = content_id
-    config = File.read('config.json')       # --TODO-- move to central config
-    generate_body(content_id, config)
+    generate_body(content_id)
   end
 
-  def generate_body(content_id, config)
-    begin
-      # config_hash = JSON.parse(config)
-      # data_hash = config_hash['irdeto']
+  def generate_body(content_id)
     rescue JSON::ParserError => e
       puts "Could not load configuration options"
     else
@@ -39,7 +35,6 @@ class GenerateKey
       }
       body = b.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::AS_XML | Nokogiri::XML::Node::SaveOptions::NO_DECLARATION).strip.to_s
       make_request(body)
-    end
   end
 
   def make_request(body)
