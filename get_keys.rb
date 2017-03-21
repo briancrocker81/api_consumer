@@ -15,7 +15,7 @@ class GenerateKey
   end
 
   def generate_body(content_id)
-    rescue JSON::ParserError => e
+    rescue Exception => e
       puts "Could not load configuration options"
     else
       namespaces  = {"xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope", "xmlns:liv" => "http://man.entriq.net/livedrmservice/"}
