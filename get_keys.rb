@@ -17,12 +17,13 @@ class GenerateKey
 
   def generate_body(content_id, config)
     begin
-      data_hash = JSON.parse(config)
+      config_hash = JSON.parse(config)
+      data_hash = config_hash['irdeto']
     rescue JSON::ParserError => e
       puts "Could not load configuration options"
     else
       namespaces  = {"xmlns:soap" => "http://www.w3.org/2003/05/soap-envelope", "xmlns:liv" => "http://man.entriq.net/livedrmservice/"}
-      header = {"m_sUsername" => "#{data_hash['irdeto']['m_sUsername']}", "m_sPassword" => "#{data_hash['irdeto']['m_sPassword']}", "KMSUsername" => "#{data_hash['irdeto']['kmsUsername']}", "KMSPassword" => "#{data_hash['irdeto']['kmsUsername']}"}
+      header = {"m_sUsername" => "#{data_hash['m_sUsername']}", "m_sPassword" => "#{data_hash['m_sPassword']}", "KMSUsername" => "#{data_hash['kmsUsername']}", "KMSPassword" => "#{data_hash['kmsUsername']}"}
       b = Nokogiri::XML::Builder.new
       b[:soap].Envelope(namespaces) {
         b[:soap].Header() {
@@ -30,9 +31,9 @@ class GenerateKey
         }
         b[:soap].Body {
           b[:liv].GenerateKeys() {
-            b[:liv].accountId(data_hash['irdeto']['account_id'])
+            b[:liv].accountId(data_hash['account_id'])
             b[:liv].contentId(content_id)
-            b[:liv].protectionSystem(){b[:liv].string(data_hash['irdeto']['protection'])}
+            b[:liv].protectionSystem(){b[:liv].string(data_hash['protection'])}
           }
         }
       }
@@ -44,9 +45,9 @@ class GenerateKey
   def make_request(body, data_hash)
     response = RestClient::Request.new({
       method: :post,
-      url: data_hash['irdeto']['url'],
+      url: data_hash['url'],
       payload: body,
-      headers: { :Authentication => "Basic #{data_hash['irdeto']['auth']}", :content_type => "text/xml; charset=UTF-8" }
+      headers: { :Authentication => "Basic #{data_hash['auth']}", :content_type => "text/xml; charset=UTF-8" }
     }).execute do |response|
       case response.code
         when 500
