@@ -1,0 +1,30 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="get_keys" type="RubyRunConfigurationType" factoryName="Ruby">
+    <module name="irdeto" />
+    <RUBY_RUN_CONFIG NAME="RUBY_ARGS" VALUE="-e $stdout.sync=true;$stderr.sync=true;load($0=ARGV.shift)" />
+    <RUBY_RUN_CONFIG NAME="WORK DIR" VALUE="$MODULE_DIR$" />
+    <RUBY_RUN_CONFIG NAME="SHOULD_USE_SDK" VALUE="false" />
+    <RUBY_RUN_CONFIG NAME="ALTERN_SDK_NAME" VALUE="" />
+    <RUBY_RUN_CONFIG NAME="myPassParentEnvs" VALUE="true" />
+    <envs>
+      <env name="url" value="http://localhost:8989/LiveDrmService/LiveDrmService.asmx" />
+      <env name="auth" value="bGl2ZWRybTpsaXZlZHJt" />
+      <env name="account_id" value="default" />
+      <env name="protection" value="IrdetoProtection" />
+      <env name="m_sUsername" value="admin@unifieds.com" />
+      <env name="m_sPassword" value="unifieds" />
+      <env name="kmsUsername" value="livedrm" />
+      <env name="kmsPassword" value="livedrm" />
+    </envs>
+    <EXTENSION ID="BundlerRunConfigurationExtension" bundleExecEnabled="false" />
+    <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
+    <EXTENSION ID="RubyCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" track_test_folders="true" runner="rcov">
+      <COVERAGE_PATTERN ENABLED="true">
+        <PATTERN REGEXPS="/.rvm/" INCLUDED="false" />
+      </COVERAGE_PATTERN>
+    </EXTENSION>
+    <RUBY_RUN_CONFIG NAME="SCRIPT_PATH" VALUE="$MODULE_DIR$/get_keys.rb" />
+    <RUBY_RUN_CONFIG NAME="SCRIPT_ARGS" VALUE="" />
+    <method />
+  </configuration>
+</component>
